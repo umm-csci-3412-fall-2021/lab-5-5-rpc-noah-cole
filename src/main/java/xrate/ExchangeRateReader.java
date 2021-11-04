@@ -64,7 +64,7 @@ public class ExchangeRateReader {
         return rates.getFloat(currency);
     }
 
-    private JSONObject getJSONForURL(String url, String currency) throws IOException, MalformedURLException {
+    private JSONObject getJSONForURL(String url) throws IOException, MalformedURLException {
         URL urlObj = new URL(url);
         InputStream is = urlObj.openStream();
         JSONTokener tokener = new JSONTokener(is);
@@ -117,7 +117,7 @@ public class ExchangeRateReader {
         String dayString = checkDateForLength(day);
 
         String url = baseURL + year + "-" + monthString + "-" + dayString + "?access_key=" + accessKey;
-        JSONObject rates = getJSONForURL(url, currencyCode);
+        JSONObject rates = getJSONForURL(url);
         return getRateForCurrency(rates, currencyCode);
     }
 
@@ -145,9 +145,14 @@ public class ExchangeRateReader {
          * the previous method.
          */
         
-        // TODO Your code here
+        String monthString = checkDateForLength(month);
+        String dayString = checkDateForLength(day);
 
-        // Remove the next line when you've implemented this method.
-        throw new UnsupportedOperationException();
+        String url = baseURL + year + "-" + monthString + "-" + dayString + "?access_key=" + accessKey;
+        JSONObject rates = getJSONForURL(url);
+        float rateOfFromCurrency = getRateForCurrency(rates, fromCurrency);
+        float rateOfToCurrency = getRateForCurrency(rates, toCurrency);
+
+        return rateOfFromCurrency / rateOfToCurrency;
     }
 }
