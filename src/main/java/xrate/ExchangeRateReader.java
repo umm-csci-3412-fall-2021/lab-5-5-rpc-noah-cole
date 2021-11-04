@@ -1,6 +1,11 @@
 package xrate;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
+import org.json.JSONTokener;
+import org.json.JSONObject;
 
 /**
  * Provide access to basic currency exchange rate services.
@@ -8,6 +13,7 @@ import java.io.IOException;
 public class ExchangeRateReader {
 
     private String accessKey;
+    private String baseURL;
 
     /**
      * Construct an exchange rate reader using the given base URL. All requests will
@@ -27,8 +33,7 @@ public class ExchangeRateReader {
          * accessible in the two key functions. (You'll need it there to construct
          * the full URL.)
          */
-
-        // TODO Your code here
+        this.baseURL = baseURL;
 
         // Reads the Fixer.io API access key from the appropriate
         // environment variable.
@@ -52,6 +57,10 @@ public class ExchangeRateReader {
         if (accessKey == null) {
             throw new MissingAccessKeyException();
         }
+    }
+
+    private float getRateForCurrency(JSONObject ratesInfo, String currency) {
+        return ratesInfo.getFloat(currency);
     }
 
     /**
@@ -84,10 +93,13 @@ public class ExchangeRateReader {
          *       currency code from the "rates" object. 
          */
 
-        // TODO Your code here
-
-        // Remove the next line when you've implemented this method.
-        throw new UnsupportedOperationException();
+        String url = baseURL + year + "-" + month + "-" + day + "?access_key=" + accessKey;
+        URL urlObj = new URL(url);
+        InputStream is = urlObj.openStream();
+        JSONTokener tokener = new JSONTokener(is);
+        JSONObject json = new JSONObject(tokener);
+        JSONObject rates = json.getJSONObject("rates");
+        return getRateForCurrency(rates, currencyCode);
     }
 
     /**
