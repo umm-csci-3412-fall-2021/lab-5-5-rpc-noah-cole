@@ -2,6 +2,7 @@ package xrate;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.json.JSONTokener;
@@ -59,8 +60,27 @@ public class ExchangeRateReader {
         }
     }
 
-    private float getRateForCurrency(JSONObject ratesInfo, String currency) {
-        return ratesInfo.getFloat(currency);
+    private float getRateForCurrency(JSONObject rates, String currency) {
+        return rates.getFloat(currency);
+    }
+
+    private JSONObject getJSONForURL(String url, String currency) throws IOException, MalformedURLException {
+        URL urlObj = new URL(url);
+        InputStream is = urlObj.openStream();
+        JSONTokener tokener = new JSONTokener(is);
+        JSONObject json = new JSONObject(tokener);
+        JSONObject rates = json.getJSONObject("rates");
+        return rates;
+    }
+
+    private String checkDateForLength(int date) {
+        String dateString = String.format("%02d", date);
+
+        if (dateString.length() == 1) {
+            return "0" + dateString;
+        } else {
+            return dateString;
+        }
     }
 
     /**
@@ -93,23 +113,11 @@ public class ExchangeRateReader {
          *       currency code from the "rates" object. 
          */
 
-        String monthString = String.format("%02d", month);
-        String dayString = String.format("%02d", day);
-
-        if (monthString.length() == 1) {
-            monthString = "0" + monthString;
-        }
-
-        if (dayString.length() == 1) {
-            dayString = "0" + dayString;
-        }
+        String monthString = checkDateForLength(month);
+        String dayString = checkDateForLength(day);
 
         String url = baseURL + year + "-" + monthString + "-" + dayString + "?access_key=" + accessKey;
-        URL urlObj = new URL(url);
-        InputStream is = urlObj.openStream();
-        JSONTokener tokener = new JSONTokener(is);
-        JSONObject json = new JSONObject(tokener);
-        JSONObject rates = json.getJSONObject("rates");
+        JSONObject rates = getJSONForURL(url, currencyCode);
         return getRateForCurrency(rates, currencyCode);
     }
 
