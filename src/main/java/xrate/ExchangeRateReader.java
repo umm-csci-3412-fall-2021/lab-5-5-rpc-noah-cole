@@ -60,10 +60,12 @@ public class ExchangeRateReader {
         }
     }
 
+    // Gets the rate for the given currency from the given JSON object.
     private float getRateForCurrency(JSONObject rates, String currency) {
         return rates.getFloat(currency);
     }
 
+    // Gets the JSON Object for the given URL.
     private JSONObject getJSONForURL(String url) throws IOException, MalformedURLException {
         URL urlObj = new URL(url);
         InputStream is = urlObj.openStream();
@@ -73,6 +75,7 @@ public class ExchangeRateReader {
         return rates;
     }
 
+    // Checks the given dates to make sure they have the correct format.
     private String checkDateForLength(int date) {
         String dateString = String.format("%02d", date);
 
