@@ -93,7 +93,18 @@ public class ExchangeRateReader {
          *       currency code from the "rates" object. 
          */
 
-        String url = baseURL + year + "-" + month + "-" + day + "?access_key=" + accessKey;
+        String monthString = String.format("%02d", month);
+        String dayString = String.format("%02d", day);
+
+        if (monthString.length() == 1) {
+            monthString = "0" + monthString;
+        }
+
+        if (dayString.length() == 1) {
+            dayString = "0" + dayString;
+        }
+
+        String url = baseURL + year + "-" + monthString + "-" + dayString + "?access_key=" + accessKey;
         URL urlObj = new URL(url);
         InputStream is = urlObj.openStream();
         JSONTokener tokener = new JSONTokener(is);
