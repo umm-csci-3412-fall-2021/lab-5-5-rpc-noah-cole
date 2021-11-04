@@ -1,6 +1,12 @@
 package xrate;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import org.json.JSONTokener;
+import org.json.JSONObject;
 
 /**
  * Provide access to basic currency exchange rate services.
@@ -8,6 +14,7 @@ import java.io.IOException;
 public class ExchangeRateReader {
 
     private String accessKey;
+    private String baseURL;
 
     /**
      * Construct an exchange rate reader using the given base URL. All requests will
@@ -27,8 +34,7 @@ public class ExchangeRateReader {
          * accessible in the two key functions. (You'll need it there to construct
          * the full URL.)
          */
-
-        // TODO Your code here
+        this.baseURL = baseURL;
 
         // Reads the Fixer.io API access key from the appropriate
         // environment variable.
@@ -51,6 +57,32 @@ public class ExchangeRateReader {
         // really run if we don't have an access key.
         if (accessKey == null) {
             throw new MissingAccessKeyException();
+        }
+    }
+
+    // Gets the rate for the given currency from the given JSON object.
+    private float getRateForCurrency(JSONObject rates, String currency) {
+        return rates.getFloat(currency);
+    }
+
+    // Gets the JSON Object for the given URL.
+    private JSONObject getJSONForURL(String url) throws IOException, MalformedURLException {
+        URL urlObj = new URL(url);
+        InputStream is = urlObj.openStream();
+        JSONTokener tokener = new JSONTokener(is);
+        JSONObject json = new JSONObject(tokener);
+        JSONObject rates = json.getJSONObject("rates");
+        return rates;
+    }
+
+    // Checks the given dates to make sure they have the correct format.
+    private String checkDateForLength(int date) {
+        String dateString = String.format("%02d", date);
+
+        if (dateString.length() == 1) {
+            return "0" + dateString;
+        } else {
+            return dateString;
         }
     }
 
@@ -84,10 +116,12 @@ public class ExchangeRateReader {
          *       currency code from the "rates" object. 
          */
 
-        // TODO Your code here
+        String monthString = checkDateForLength(month);
+        String dayString = checkDateForLength(day);
 
-        // Remove the next line when you've implemented this method.
-        throw new UnsupportedOperationException();
+        String url = baseURL + year + "-" + monthString + "-" + dayString + "?access_key=" + accessKey;
+        JSONObject rates = getJSONForURL(url);
+        return getRateForCurrency(rates, currencyCode);
     }
 
     /**
@@ -114,9 +148,14 @@ public class ExchangeRateReader {
          * the previous method.
          */
         
-        // TODO Your code here
+        String monthString = checkDateForLength(month);
+        String dayString = checkDateForLength(day);
 
-        // Remove the next line when you've implemented this method.
-        throw new UnsupportedOperationException();
+        String url = baseURL + year + "-" + monthString + "-" + dayString + "?access_key=" + accessKey;
+        JSONObject rates = getJSONForURL(url);
+        float rateOfFromCurrency = getRateForCurrency(rates, fromCurrency);
+        float rateOfToCurrency = getRateForCurrency(rates, toCurrency);
+
+        return rateOfFromCurrency / rateOfToCurrency;
     }
 }
