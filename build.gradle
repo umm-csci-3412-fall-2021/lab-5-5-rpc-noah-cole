@@ -17,7 +17,7 @@ plugins {
 // Build and run the project with Java 16
 java {
   toolchain {
-    languageVersion = JavaLanguageVersion.of(16)
+    languageVersion = JavaLanguageVersion.of(11)
   }
 }
 
